@@ -39,8 +39,8 @@
 }
 
 .image.ng-enter {
-  -webkit-transition: 1s linear all;
-  transition: 1s linear all;
+  -webkit-transition: 1.25s linear all;
+  transition: 1.25s linear all;
   opacity:0;
 }
 .image.ng-enter.ng-enter-active {

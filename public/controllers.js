@@ -16,8 +16,12 @@ movieApp.controller('homeController', ['$scope', 'movieService', '$timeout',
         console.log("there was an error getting the initial movies");
       })
     }
-    $scope.getInitialMovies().then(function () {
+
+    function stopSpinner() {
       $scope.loading = false;
+    }
+    $scope.getInitialMovies().then(function () {
+      stopSpinner();
     });
     //automatically go to page 2 to get the scrollbar without css hackery. $timeout hackery > non-semantic css crap/hackery
     $timeout(function () {
@@ -26,7 +30,7 @@ movieApp.controller('homeController', ['$scope', 'movieService', '$timeout',
     //pass the displayRecordCount to the backend on the scroll event, then concat the new records on to $scope.popularMovies
     $scope.getMoreMovies = function () {
       $scope.pageNumber++;
-      movieService.getPopularMovies($scope.pageNumber).then(function (response) {
+      return movieService.getPopularMovies($scope.pageNumber).then(function (response) {
         response.data.results = $scope.filterOutMoviesWithNoImages(response.data.results);
         $scope.popularMovies = $scope.popularMovies.concat(response.data.results);
       }, function () {
@@ -41,7 +45,9 @@ movieApp.controller('homeController', ['$scope', 'movieService', '$timeout',
     //TODO: make this into a reusable directive or put it in a service for other views.
     $(window).scroll(function () {
       if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-        $scope.getMoreMovies();
+        $scope.getMoreMovies().then(function () {
+          stopSpinner();
+        })
       }
     });
   }
