@@ -20,7 +20,7 @@
                 <div class="container">
                     <div class="navbar-header">
                         <a class="navbar-brand" href="/">Popular Movies</a>
-                        <div class=" pull-left loader" ng-show="loading"></div>
+                        <div class=" pull-left loader" ng-show="loading || popularMovies.length === 0"></div>
                     </div>
                 </div>
             </nav>

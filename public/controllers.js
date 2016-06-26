@@ -1,9 +1,6 @@
 movieApp.controller('homeController', ['$scope', 'movieService', '$timeout', '$rootElement',
   function ($scope, movieService, $timeout, $rootElement) {
-    $rootElement.data("$$ngAnimateState").running = false;
-    window.scope = $scope;
     $scope.loading = true;
-    //pass the page number to getPopularMovies
     $scope.popularMovies = [];
     $scope.filterOutMoviesWithNoImages = function (moviesArr) {
       return moviesArr.filter(function (movie) {
@@ -16,7 +13,7 @@ movieApp.controller('homeController', ['$scope', 'movieService', '$timeout', '$r
         response.data.results = $scope.filterOutMoviesWithNoImages(response.data.results);
         $scope.popularMovies = response.data.results;
       }, function (err) {
-        $scope.loading = false;
+        console.log("there was an error getting the initial movies");
       })
     }
     $scope.getInitialMovies().then(function () {
