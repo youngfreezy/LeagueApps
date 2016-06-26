@@ -1,5 +1,5 @@
-movieApp.controller('homeController', ['$scope', 'movieService', '$timeout', '$rootElement',
-  function ($scope, movieService, $timeout, $rootElement) {
+movieApp.controller('homeController', ['$scope', 'movieService', '$timeout',
+  function ($scope, movieService, $timeout) {
     $scope.loading = true;
     $scope.popularMovies = [];
     $scope.filterOutMoviesWithNoImages = function (moviesArr) {
