@@ -43,7 +43,7 @@ movieApp.controller('homeController', ['$scope', 'movieService', '$timeout',
     }
     $scope.$watch('popularMovies', function () {
       if ($scope.popularMovies.length > 1000) {
-        alert("Did not have time to address too many DOM nodes - would have used angulars $cacheFactory and evicted records too far out of the view");
+        alert("TODO: use angulars $cacheFactory and evict records too far out of the view");
         $scope.limitReached = true;
       }
     })
