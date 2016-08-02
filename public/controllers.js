@@ -1,59 +1,56 @@
-movieApp.controller('homeController', ['$scope', 'movieService', '$timeout',
-  function ($scope, movieService, $timeout) {
-    $scope.loading = true;
-    $scope.popularMovies = [];
-    $scope.limitReached = false;
-    $scope.filterOutMoviesWithNoImages = function (moviesArr) {
-      return moviesArr.filter(function (movie) {
-        return movie.poster_path;
-      })
-    }
-    $scope.getInitialMovies = function () {
-      $scope.pageNumber = 1;
-      return movieService.getPopularMovies(1).then(function (response) {
-        response.data.results = $scope.filterOutMoviesWithNoImages(response.data.results);
-        $scope.popularMovies = response.data.results;
-      }, function (err) {
-        console.log("there was an error getting the initial movies");
-      })
-    }
+leagueScheduleApp.controller('homeController', ['$scope', 'TeamsScheduleService',
+    function($scope, TeamsScheduleService) {
+        $scope.getSchedules = function() {
+            return TeamsScheduleService.getTeamSchedules().then(function(response) {
+                $scope.gamesSchedule = response.data.games;
+            }, function(err) {
+                console.log("there was an error getting the teams schedules");
+            })
+        }
+        $scope.homeVsAwaySchedules = {};
+        $scope.getSchedules().then(trackHomeVsAway);
 
-    function stopSpinner() {
-      $scope.loading = false;
+        function updateTeamSchedule(team, games) {
+            if (team) {
+                if ($scope.homeVsAwaySchedules[team]) {
+                    $scope.homeVsAwaySchedules[team][games]++;
+                }
+            }
+        }
+
+        //check if the schedule is imbalanced
+        function checkBalancedSchedule(homeVsAwayData) {
+            if (homeVsAwayData.homeGames > 10 || homeVsAwayData.awayGames < 10) {
+                $scope.imbalancedSchedule = true;
+            }
+        }
+
+        function trackHomeVsAway() {
+            //initialize homeVsAwaySchedules object in separate loop for efficiency and readability
+            //nstead of trying to initialize + tally at the same time.
+            $scope.gamesSchedule.forEach(function(gameData) {
+                function checkTeam(team) {
+                    if (team) {
+                        if (!$scope.homeVsAwaySchedules[team]) {
+                            $scope.homeVsAwaySchedules[team] = {
+                                "homeGames": 0,
+                                "awayGames": 0
+                            };
+                        }
+                    }
+                }
+                checkTeam(gameData.team1);
+                checkTeam(gameData.team2);
+            })
+
+            $scope.gamesSchedule.forEach(function(gameData) {
+                updateTeamSchedule(gameData.team1, "homeGames");
+                updateTeamSchedule(gameData.team2, "awayGames");
+            })
+
+            for (var homeVsAwayData in $scope.homeVsAwaySchedules) {
+                checkBalancedSchedule($scope.homeVsAwaySchedules[homeVsAwayData]);
+            }
+        };
     }
-    $scope.getInitialMovies().then(function () {
-      stopSpinner();
-    });
-    //automatically go to page 2 to get the scrollbar without css hackery. $timeout hackery > non-semantic css crap/hackery
-    $timeout(function () {
-      $scope.getMoreMovies();
-    }, 500)
-    //pass the displayRecordCount to the backend on the scroll event, then concat the new records on to $scope.popularMovies
-    $scope.getMoreMovies = function () {
-      if ($scope.limitReached) {
-        return;
-      }
-      $scope.pageNumber++;
-      return movieService.getPopularMovies($scope.pageNumber).then(function (response) {
-        response.data.results = $scope.filterOutMoviesWithNoImages(response.data.results);
-        $scope.popularMovies = $scope.popularMovies.concat(response.data.results);
-      }, function () {
-        console.log("the pagination service is down");
-      })
-    }
-    $scope.$watch('popularMovies', function () {
-      if ($scope.popularMovies.length > 1000) {
-        alert("TODO: use angulars $cacheFactory and evict records too far out of the view");
-        $scope.limitReached = true;
-      }
-    })
-    //TODO: make this into a reusable directive or put it in a service for other views.
-    $(window).scroll(function () {
-      if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-        $scope.getMoreMovies().then(function () {
-          stopSpinner();
-        })
-      }
-    });
-  }
 ]);
